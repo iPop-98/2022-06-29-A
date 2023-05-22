@@ -77,9 +77,7 @@ public class FXMLController {
     		return;
     	}
 
-    		
-    	String input = txtX.getText();
-    	
+    	String input = txtX.getText();    	
     	
     	if (input == "") {
     		txtResult.setText("Input string for X is empty.");
