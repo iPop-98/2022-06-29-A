@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 import it.polito.tdp.itunes.model.Album;
 import it.polito.tdp.itunes.model.Artist;
 import it.polito.tdp.itunes.model.Genre;
@@ -137,6 +139,43 @@ public class ItunesDAO {
 			throw new RuntimeException("SQL Error");
 		}
 		return result;
+	}
+
+	public List<Album> getVertex(int n, Map<Integer, Album> albumIdMap) {
+		final String sql = "SELECT t.AlbumId, COUNT(t.TrackId) AS nBrani "
+				+ "FROM track t "
+				+ "GROUP BY t.AlbumId "
+				+ "HAVING COUNT(t.TrackId) > ? ";
+		
+		
+		List<Album> result = new ArrayList<>();
+		
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, n);
+			ResultSet res = st.executeQuery();
+
+			while (res.next()) {
+				Album a = albumIdMap.get(res.getInt("AlbumId"));
+				//facciamo un controllo di sicureza, caso mai mappa e DB non fossero aggiornati tra loro
+				if(a!=null) {
+					result.add(a);
+					a.setnBrani(res.getInt("nBrani"));
+				}
+			}
+			st.close();
+			res.close();
+			conn.close();
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new RuntimeException("SQL Error");
+		} catch (Exception gen) {
+			gen.printStackTrace();
+			throw new RuntimeException("Generic Error");
+		}
+
 	}
 	
 }
